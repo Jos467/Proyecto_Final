@@ -18,6 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
+  bool _isLoadingGoogle = false;
   String? _errorMessage;
 
   @override
@@ -29,26 +30,46 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
+  // ============================================
+  // VALIDAR FORMATO DE EMAIL
+  // ============================================
+  bool _esEmailValido(String email) {
+    final RegExp emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email);
+  }
+
+  // ============================================
+  // REGISTRAR USUARIO
+  // ============================================
   Future<void> _registrarUsuario() async {
-    // Limpiar error anterior
     setState(() {
       _errorMessage = null;
     });
 
-    // Obtener valores
     String nombre = _nombreController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;
 
-    // Validaciones
+    // Validación: Nombre vacío
     if (nombre.isEmpty) {
       setState(() {
-        _errorMessage = 'Por favor ingresa tu nombre';
+        _errorMessage = 'Por favor ingresa tu nombre completo';
       });
       return;
     }
 
+    // Validación: Nombre muy corto
+    if (nombre.length < 3) {
+      setState(() {
+        _errorMessage = 'El nombre debe tener al menos 3 caracteres';
+      });
+      return;
+    }
+
+    // Validación: Email vacío
     if (email.isEmpty) {
       setState(() {
         _errorMessage = 'Por favor ingresa tu correo electrónico';
@@ -56,6 +77,15 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    // Validación: Formato de email
+    if (!_esEmailValido(email)) {
+      setState(() {
+        _errorMessage = 'Por favor ingresa un correo electrónico válido';
+      });
+      return;
+    }
+
+    // Validación: Contraseña vacía
     if (password.isEmpty) {
       setState(() {
         _errorMessage = 'Por favor ingresa una contraseña';
@@ -63,20 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    if (confirmPassword.isEmpty) {
-      setState(() {
-        _errorMessage = 'Por favor confirma tu contraseña';
-      });
-      return;
-    }
-
-    if (password != confirmPassword) {
-      setState(() {
-        _errorMessage = 'Las contraseñas no coinciden';
-      });
-      return;
-    }
-
+    // Validación: Longitud mínima de contraseña
     if (password.length < 6) {
       setState(() {
         _errorMessage = 'La contraseña debe tener al menos 6 caracteres';
@@ -84,33 +101,70 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    // Mostrar loading
+    // Validación: Confirmar contraseña vacía
+    if (confirmPassword.isEmpty) {
+      setState(() {
+        _errorMessage = 'Por favor confirma tu contraseña';
+      });
+      return;
+    }
+
+    // Validación: Contraseñas no coinciden
+    if (password != confirmPassword) {
+      setState(() {
+        _errorMessage = 'Las contraseñas no coinciden';
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    // Intentar registro
     Map<String, dynamic> resultado = await _authService.registrarConCorreo(
       nombre: nombre,
       email: email,
       password: password,
     );
 
-    // Ocultar loading
     setState(() {
       _isLoading = false;
     });
 
     if (resultado['success']) {
       if (mounted) {
-        // Mostrar mensaje de éxito
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('¡Cuenta creada exitosamente!'),
             backgroundColor: Colors.green,
           ),
         );
-        // Navegar al home
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } else {
+      setState(() {
+        _errorMessage = resultado['message'];
+      });
+    }
+  }
+
+  // ============================================
+  // INICIAR SESIÓN CON GOOGLE
+  // ============================================
+  Future<void> _iniciarSesionConGoogle() async {
+    setState(() {
+      _errorMessage = null;
+      _isLoadingGoogle = true;
+    });
+
+    Map<String, dynamic> resultado = await _authService.iniciarSesionConGoogle();
+
+    setState(() {
+      _isLoadingGoogle = false;
+    });
+
+    if (resultado['success']) {
+      if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } else {
@@ -230,7 +284,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
-                        hintText: "Contraseña",
+                        hintText: "Contraseña (mínimo 6 caracteres)",
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
@@ -301,6 +355,63 @@ class _RegisterPageState extends State<RegisterPage> {
                                 "Crear Cuenta",
                                 style: TextStyle(fontSize: 18),
                               ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Divisor
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.grey.shade300)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            "o continúa con",
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Colors.grey.shade300)),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Botón Google
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        onPressed: _isLoadingGoogle ? null : _iniciarSesionConGoogle,
+                        icon: _isLoadingGoogle
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Image.network(
+                                'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                                height: 24,
+                                width: 24,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.g_mobiledata, size: 24);
+                                },
+                              ),
+                        label: Text(
+                          _isLoadingGoogle ? "Conectando..." : "Continuar con Google",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
                       ),
                     ),
 

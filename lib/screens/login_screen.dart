@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isLoadingGoogle = false;
   String? _errorMessage;
 
   @override
@@ -24,6 +25,19 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  // ============================================
+  // VALIDAR FORMATO DE EMAIL
+  // ============================================
+  bool _esEmailValido(String email) {
+    final RegExp emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email);
+  }
+
+  // ============================================
+  // INICIAR SESIÓN CON CORREO
+  // ============================================
   Future<void> _iniciarSesion() async {
     setState(() {
       _errorMessage = null;
@@ -32,6 +46,7 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailController.text.trim();
     String password = _passwordController.text;
 
+    // Validación: Email vacío
     if (email.isEmpty) {
       setState(() {
         _errorMessage = 'Por favor ingresa tu correo electrónico';
@@ -39,9 +54,26 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    // Validación: Formato de email
+    if (!_esEmailValido(email)) {
+      setState(() {
+        _errorMessage = 'Por favor ingresa un correo electrónico válido';
+      });
+      return;
+    }
+
+    // Validación: Contraseña vacía
     if (password.isEmpty) {
       setState(() {
         _errorMessage = 'Por favor ingresa tu contraseña';
+      });
+      return;
+    }
+
+    // Validación: Longitud mínima de contraseña
+    if (password.length < 6) {
+      setState(() {
+        _errorMessage = 'La contraseña debe tener al menos 6 caracteres';
       });
       return;
     }
@@ -57,6 +89,32 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() {
       _isLoading = false;
+    });
+
+    if (resultado['success']) {
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } else {
+      setState(() {
+        _errorMessage = resultado['message'];
+      });
+    }
+  }
+
+  // ============================================
+  // INICIAR SESIÓN CON GOOGLE
+  // ============================================
+  Future<void> _iniciarSesionConGoogle() async {
+    setState(() {
+      _errorMessage = null;
+      _isLoadingGoogle = true;
+    });
+
+    Map<String, dynamic> resultado = await _authService.iniciarSesionConGoogle();
+
+    setState(() {
+      _isLoadingGoogle = false;
     });
 
     if (resultado['success']) {
@@ -123,6 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
 
+                    // Mensaje de error
                     if (_errorMessage != null)
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -149,6 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
 
+                    // Campo Email
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -165,6 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Campo Contraseña
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -189,18 +250,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
 
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: const Text("¿Olvidaste tu contraseña?"),
-                      ),
-                    ),
+                    const SizedBox(height: 24),
 
-                    const SizedBox(height: 10),
-
+                    // Botón Ingresar
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -231,6 +284,64 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 20),
 
+                    // Divisor
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.grey.shade300)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            "o continúa con",
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Colors.grey.shade300)),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Botón Google
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        onPressed: _isLoadingGoogle ? null : _iniciarSesionConGoogle,
+                        icon: _isLoadingGoogle
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Image.network(
+                                'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                                height: 24,
+                                width: 24,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.g_mobiledata, size: 24);
+                                },
+                              ),
+                        label: Text(
+                          _isLoadingGoogle ? "Conectando..." : "Continuar con Google",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Link Registrarse
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

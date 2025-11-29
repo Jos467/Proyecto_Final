@@ -18,16 +18,13 @@ class AuthService {
     required String password,
   }) async {
     try {
-      // Crear usuario en Firebase Auth
       UserCredential resultado = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Actualizar nombre en Auth
       await resultado.user?.updateDisplayName(nombre);
 
-      // Guardar datos adicionales en Firestore
       if (resultado.user != null) {
         await _firestoreService.guardarUsuario(
           uid: resultado.user!.uid,
@@ -87,6 +84,51 @@ class AuthService {
         'success': false,
         'user': null,
         'message': 'Error: $e',
+      };
+    }
+  }
+
+  // ============================================
+  // INICIAR SESIÓN CON GOOGLE
+  // ============================================
+  Future<Map<String, dynamic>> iniciarSesionConGoogle() async {
+    try {
+      // Usar el proveedor de Google directamente con Firebase
+      GoogleAuthProvider googleProvider = GoogleAuthProvider();
+      
+      // Iniciar sesión con popup (funciona en Android)
+      UserCredential resultado = await _auth.signInWithProvider(googleProvider);
+
+      // Guardar en Firestore si es nuevo usuario
+      if (resultado.user != null) {
+        final usuarioExiste = await _firestoreService.obtenerUsuario(resultado.user!.uid);
+        
+        if (usuarioExiste == null) {
+          await _firestoreService.guardarUsuario(
+            uid: resultado.user!.uid,
+            nombre: resultado.user!.displayName ?? 'Usuario Google',
+            email: resultado.user!.email ?? '',
+            fotoUrl: resultado.user!.photoURL,
+          );
+        }
+      }
+
+      return {
+        'success': true,
+        'user': resultado.user,
+        'message': 'Inicio de sesión con Google exitoso',
+      };
+    } on FirebaseAuthException catch (e) {
+      return {
+        'success': false,
+        'user': null,
+        'message': 'Error de Firebase: ${e.message}',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'user': null,
+        'message': 'Error con Google: $e',
       };
     }
   }
