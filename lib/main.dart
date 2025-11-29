@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto_movil_2/login.dart';
-import 'package:proyecto_movil_2/registro.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:proyecto_movil_2/screens/login_screen.dart';
+import 'package:proyecto_movil_2/screens/registro_screen.dart';
+import 'package:proyecto_movil_2/screens/home_screen.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,10 +22,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
         useMaterial3: true,
       ),
-      initialRoute: '/login', // Pantalla inicial
+      initialRoute: '/login',
       routes: {
-        '/login': (context) => LoginPage(),
-        '/register': (context) => RegisterPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/home': (context) => HomeScreen(),
       },
     );
   }

@@ -1,15 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto_movil_2/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _registrarUsuario() async {
+    // Limpiar error anterior
+    setState(() {
+      _errorMessage = null;
+    });
+
+    // Obtener valores
+    String nombre = _nombreController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text;
+    String confirmPassword = _confirmPasswordController.text;
+
+    // Validaciones
+    if (nombre.isEmpty) {
+      setState(() {
+        _errorMessage = 'Por favor ingresa tu nombre';
+      });
+      return;
+    }
+
+    if (email.isEmpty) {
+      setState(() {
+        _errorMessage = 'Por favor ingresa tu correo electrónico';
+      });
+      return;
+    }
+
+    if (password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Por favor ingresa una contraseña';
+      });
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      setState(() {
+        _errorMessage = 'Por favor confirma tu contraseña';
+      });
+      return;
+    }
+
+    if (password != confirmPassword) {
+      setState(() {
+        _errorMessage = 'Las contraseñas no coinciden';
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      setState(() {
+        _errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+      });
+      return;
+    }
+
+    // Mostrar loading
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Intentar registro
+    Map<String, dynamic> resultado = await _authService.registrarConCorreo(
+      nombre: nombre,
+      email: email,
+      password: password,
+    );
+
+    // Ocultar loading
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (resultado['success']) {
+      if (mounted) {
+        // Mostrar mensaje de éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Cuenta creada exitosamente!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Navegar al home
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } else {
+      setState(() {
+        _errorMessage = resultado['message'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +139,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 40),
-
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -56,7 +164,37 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 24),
 
+                    // Mensaje de error
+                    if (_errorMessage != null)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red.shade700),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Campo Nombre
                     TextField(
+                      controller: _nombreController,
+                      textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
                         hintText: "Nombre completo",
                         prefixIcon: const Icon(Icons.person_outline),
@@ -70,7 +208,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Campo Email
                     TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: "Correo electrónico",
                         prefixIcon: const Icon(Icons.email_outlined),
@@ -84,7 +225,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Campo Contraseña
                     TextField(
+                      controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         hintText: "Contraseña",
@@ -107,7 +250,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Campo Confirmar Contraseña
                     TextField(
+                      controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
                       decoration: InputDecoration(
                         hintText: "Confirmar contraseña",
@@ -130,6 +275,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 24),
 
+                    // Botón Crear Cuenta
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -141,16 +287,26 @@ class _RegisterPageState extends State<RegisterPage> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        onPressed: () {},
-                        child: const Text(
-                          "Crear Cuenta",
-                          style: TextStyle(fontSize: 18),
-                        ),
+                        onPressed: _isLoading ? null : _registrarUsuario,
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                "Crear Cuenta",
+                                style: TextStyle(fontSize: 18),
+                              ),
                       ),
                     ),
 
                     const SizedBox(height: 20),
 
+                    // Link para ir a Login
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
