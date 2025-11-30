@@ -304,11 +304,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Emergencias'),
-        backgroundColor: Colors.redAccent,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-      ),
+  title: const Text('Emergencias'),
+  backgroundColor: Colors.redAccent,
+  foregroundColor: Colors.white,
+  automaticallyImplyLeading: false,
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.list),
+      onPressed: () => Navigator.pushNamed(context, '/mis-alertas'),
+      tooltip: 'Mis Alertas',
+    ),
+    IconButton(
+      icon: const Icon(Icons.person),
+      onPressed: () => Navigator.pushNamed(context, '/perfil'),
+      tooltip: 'Perfil',
+    ),
+  ],
+),
       body: _isLoading
           ? Center(
               child: Column(
