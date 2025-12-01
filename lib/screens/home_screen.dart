@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.red, size: 20),
+                const Icon(Icons.location_on, color: Color.fromARGB(255, 160, 135, 133), size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -305,10 +305,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
   title: const Text('Emergencias'),
-  backgroundColor: Colors.redAccent,
+  backgroundColor: const Color.fromARGB(255, 25, 45, 29),
   foregroundColor: Colors.white,
   automaticallyImplyLeading: false,
   actions: [
+     IconButton(
+      icon: const Icon(Icons.map),
+      onPressed: () => Navigator.pushNamed(context, '/mapa'),
+      tooltip: 'Mapa de Alertas',
+    ),
     IconButton(
       icon: const Icon(Icons.list),
       onPressed: () => Navigator.pushNamed(context, '/mis-alertas'),

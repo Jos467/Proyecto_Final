@@ -6,6 +6,7 @@ import 'package:proyecto_movil_2/screens/home_screen.dart';
 import 'package:proyecto_movil_2/screens/lista_alertas_screen.dart';
 import 'package:proyecto_movil_2/screens/detalle_alerta_screen.dart';
 import 'package:proyecto_movil_2/screens/perfil_screen.dart';
+import 'package:proyecto_movil_2/screens/mapa_alertas_screen.dart'; // ← AGREGAR
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/mis-alertas': (context) => ListaAlertasScreen(),
         '/detalle-alerta': (context) => DetalleAlertaScreen(),
         '/perfil': (context) => PerfilScreen(),
+        '/mapa': (context) => const MapaAlertasScreen(), // ← AGREGAR
       },
     );
   }
