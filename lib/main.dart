@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:proyecto_movil_2/screens/splash_screen.dart';
+import 'package:proyecto_movil_2/screens/politica_privacidad_screen.dart';
 import 'package:proyecto_movil_2/screens/login_screen.dart';
 import 'package:proyecto_movil_2/screens/registro_screen.dart';
 import 'package:proyecto_movil_2/screens/home_screen.dart';
 import 'package:proyecto_movil_2/screens/lista_alertas_screen.dart';
 import 'package:proyecto_movil_2/screens/detalle_alerta_screen.dart';
 import 'package:proyecto_movil_2/screens/perfil_screen.dart';
-import 'package:proyecto_movil_2/screens/mapa_alertas_screen.dart'; // ← AGREGAR
+import 'package:proyecto_movil_2/screens/mapa_alertas_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,15 +28,18 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
         useMaterial3: true,
       ),
-      initialRoute: '/login',
+      initialRoute: '/', // Cambiado a splash
       routes: {
+        '/': (context) => const SplashScreen(), // Nueva ruta inicial
+        '/politica-inicial': (context) => const PoliticaPrivacidadScreen(esPrimeraVez: true),
+        '/politica': (context) => const PoliticaPrivacidadScreen(esPrimeraVez: false),
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomeScreen(),
         '/mis-alertas': (context) => ListaAlertasScreen(),
         '/detalle-alerta': (context) => DetalleAlertaScreen(),
         '/perfil': (context) => PerfilScreen(),
-        '/mapa': (context) => const MapaAlertasScreen(), // ← AGREGAR
+        '/mapa': (context) => const MapaAlertasScreen(),
       },
     );
   }

@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    
+  shared_preferences: ^2.2.2
 
   # === ICONOS ===
   cupertino_icons: ^1.0.8

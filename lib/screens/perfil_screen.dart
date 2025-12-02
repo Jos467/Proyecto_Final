@@ -13,7 +13,7 @@ class PerfilScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mi Perfil'),
-        backgroundColor: Colors.redAccent,
+        backgroundColor:const Color.fromARGB(255, 25, 45, 29),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -75,6 +75,48 @@ class PerfilScreen extends StatelessWidget {
               icon: Icons.fingerprint,
               titulo: 'ID de usuario',
               valor: user?.uid ?? 'No disponible',
+            ),
+
+            const SizedBox(height: 20),
+
+            // =============================================
+            // BOTÓN DE POLÍTICA DE PRIVACIDAD - NUEVO
+            // =============================================
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.privacy_tip,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+                title: const Text(
+                  'Política de Privacidad',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: Text(
+                  'Lee nuestros términos y condiciones',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey.shade400,
+                ),
+                onTap: () => Navigator.pushNamed(context, '/politica'),
+              ),
             ),
 
             const SizedBox(height: 40),
