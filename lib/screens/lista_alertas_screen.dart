@@ -17,7 +17,7 @@ class ListaAlertasScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mis Alertas'),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Color.fromARGB(255, 25, 45, 29),
         foregroundColor: Colors.white,
       ),
       body: StreamBuilder<List<Alerta>>(

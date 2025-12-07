@@ -592,46 +592,87 @@ class _LeyendaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    
+    final bool isSmallScreen = screenHeight < 700;
+    final double itemPadding = isSmallScreen ? 4.0 : 8.0;
+    final double iconSize = isSmallScreen ? 18.0 : 24.0;
+    final double fontSize = isSmallScreen ? 13.0 : 16.0;
+
     return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Leyenda de Colores',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Cada color representa un tipo de emergencia',
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
-          _buildItem(Colors.orange, 'Accidente', Icons.car_crash),
-          _buildItem(Colors.red, 'Incendio', Icons.local_fire_department),
-          _buildItem(Colors.purple, 'Robo', Icons.warning),
-          _buildItem(Colors.blue, 'Emergencia Médica', Icons.medical_services),
-          _buildItem(Colors.teal, 'Desastre Natural', Icons.flood),
-          _buildItem(Colors.amber, 'Otro', Icons.report_problem),
-          const Divider(height: 30),
-          _buildItem(Colors.blue.shade700, 'Mi ubicación', Icons.person_pin),
-          const SizedBox(height: 20),
-        ],
+      constraints: BoxConstraints(
+        maxHeight: screenHeight * 0.55,
+      ),
+      padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Indicador de arrastre
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            
+            Text(
+              'Leyenda de Colores',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 18 : 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: isSmallScreen ? 4 : 8),
+            Text(
+              'Cada color representa un tipo de emergencia',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+            SizedBox(height: isSmallScreen ? 12 : 20),
+            
+            _buildItem(Colors.orange, 'Accidente', Icons.car_crash, itemPadding, iconSize, fontSize),
+            _buildItem(Colors.red, 'Incendio', Icons.local_fire_department, itemPadding, iconSize, fontSize),
+            _buildItem(Colors.purple, 'Robo', Icons.warning, itemPadding, iconSize, fontSize),
+            _buildItem(Colors.blue, 'Emergencia Médica', Icons.medical_services, itemPadding, iconSize, fontSize),
+            _buildItem(Colors.teal, 'Desastre Natural', Icons.flood, itemPadding, iconSize, fontSize),
+            _buildItem(Colors.amber, 'Otro', Icons.report_problem, itemPadding, iconSize, fontSize),
+            
+            Divider(height: isSmallScreen ? 20 : 30),
+            _buildItem(Colors.blue.shade700, 'Mi ubicación', Icons.person_pin, itemPadding, iconSize, fontSize),
+            
+            SizedBox(height: isSmallScreen ? 12 : 20),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildItem(Color color, String texto, IconData icono) {
+  Widget _buildItem(Color color, String texto, IconData icono, double padding, double iconSize, double fontSize) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: padding),
       child: Row(
         children: [
-          Icon(Icons.circle, color: color, size: 16),
-          const SizedBox(width: 12),
-          Icon(icono, color: color, size: 24),
-          const SizedBox(width: 12),
-          Text(texto, style: const TextStyle(fontSize: 16)),
+          Icon(Icons.circle, color: color, size: iconSize * 0.6),
+          SizedBox(width: iconSize * 0.5),
+          Icon(icono, color: color, size: iconSize),
+          SizedBox(width: iconSize * 0.5),
+          Expanded(
+            child: Text(
+              texto,
+              style: TextStyle(fontSize: fontSize),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

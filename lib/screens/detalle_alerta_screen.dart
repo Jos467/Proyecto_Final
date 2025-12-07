@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:proyecto_movil_2/models/alerta_model.dart';
 import 'package:proyecto_movil_2/services/alerta_service.dart';
+import 'package:proyecto_movil_2/services/auth_service.dart';
 
 class DetalleAlertaScreen extends StatelessWidget {
   DetalleAlertaScreen({super.key});
 
   final AlertaService _alertaService = AlertaService();
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +16,9 @@ class DetalleAlertaScreen extends StatelessWidget {
     String fechaFormateada = DateFormat('dd/MM/yyyy HH:mm').format(alerta.fechaCreacion);
     Color tipoColor = _getColorTipo(alerta.tipo);
     IconData tipoIcono = _getIconoTipo(alerta.tipo);
+    
+    // Verificar si es el dueño de la alerta
+    final bool esPropia = _authService.usuarioActual?.uid == alerta.usuarioId;
 
     return Scaffold(
       appBar: AppBar(
@@ -21,10 +26,12 @@ class DetalleAlertaScreen extends StatelessWidget {
         backgroundColor: Colors.redAccent,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _confirmarEliminar(context, alerta),
-          ),
+          // Solo mostrar botón eliminar si es su propia alerta
+          if (esPropia)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _confirmarEliminar(context, alerta),
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -69,6 +76,33 @@ class DetalleAlertaScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Indicador si es propia o ajena
+                  if (!esPropia)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.people, size: 16, color: Colors.blue.shade700),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Alerta de otro usuario',
+                            style: TextStyle(
+                              color: Colors.blue.shade700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                   // Tipo de emergencia
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

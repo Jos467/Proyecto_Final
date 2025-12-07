@@ -25,9 +25,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  // ============================================
-  // VALIDAR FORMATO DE EMAIL
-  // ============================================
   bool _esEmailValido(String email) {
     final RegExp emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -35,9 +32,6 @@ class _LoginPageState extends State<LoginPage> {
     return emailRegex.hasMatch(email);
   }
 
-  // ============================================
-  // INICIAR SESIÓN CON CORREO
-  // ============================================
   Future<void> _iniciarSesion() async {
     setState(() {
       _errorMessage = null;
@@ -46,7 +40,6 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailController.text.trim();
     String password = _passwordController.text;
 
-    // Validación: Email vacío
     if (email.isEmpty) {
       setState(() {
         _errorMessage = 'Por favor ingresa tu correo electrónico';
@@ -54,7 +47,6 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Validación: Formato de email
     if (!_esEmailValido(email)) {
       setState(() {
         _errorMessage = 'Por favor ingresa un correo electrónico válido';
@@ -62,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Validación: Contraseña vacía
     if (password.isEmpty) {
       setState(() {
         _errorMessage = 'Por favor ingresa tu contraseña';
@@ -70,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Validación: Longitud mínima de contraseña
     if (password.length < 6) {
       setState(() {
         _errorMessage = 'La contraseña debe tener al menos 6 caracteres';
@@ -102,9 +92,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // ============================================
-  // INICIAR SESIÓN CON GOOGLE
-  // ============================================
   Future<void> _iniciarSesionConGoogle() async {
     setState(() {
       _errorMessage = null;
@@ -130,235 +117,311 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Obtener dimensiones de pantalla
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
+    
+    
+    // Calcular valores responsivos
+    final bool isSmallScreen = screenHeight < 600;
+    final bool isLargeScreen = screenWidth > 600;
+    final double horizontalPadding = isLargeScreen ? screenWidth * 0.15 : 24.0;
+    final double maxCardWidth = isLargeScreen ? 500.0 : double.infinity;
+    
+    // Tamaños de fuente responsivos
+    final double titleSize = isSmallScreen ? 24 : (isLargeScreen ? 36 : 32);
+    final double subtitleSize = isSmallScreen ? 16 : (isLargeScreen ? 22 : 20);
+    final double cardTitleSize = isSmallScreen ? 18 : 22;
+    final double buttonTextSize = isSmallScreen ? 16 : 18;
+    
+    // Espaciados responsivos
+    final double verticalSpacing = isSmallScreen ? 12 : 24;
+    final double cardPadding = isSmallScreen ? 16 : 24;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Gestión de Emergencias",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: isSmallScreen ? 8 : 16,
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: maxCardWidth,
               ),
-              const SizedBox(height: 8),
-              const Text(
-                "Con Localización",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 40),
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    )
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      "Iniciar Sesión",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Título
+                  Text(
+                    "Gestión de Emergencias",
+                    style: TextStyle(
+                      fontSize: titleSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 24),
-
-                    // Mensaje de error
-                    if (_errorMessage != null)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.red.shade200),
+                  ),
+                  SizedBox(height: isSmallScreen ? 4 : 8),
+                  Text(
+                    "Con Localización",
+                    style: TextStyle(
+                      fontSize: subtitleSize,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  SizedBox(height: verticalSpacing * 1.5),
+                  
+                  // Card del formulario
+                  Container(
+                    padding: EdgeInsets.all(cardPadding),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          "Iniciar Sesión",
+                          style: TextStyle(
+                            fontSize: cardTitleSize,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.error_outline, color: Colors.red.shade700),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                _errorMessage!,
-                                style: TextStyle(
+                        SizedBox(height: verticalSpacing),
+
+                        // Mensaje de error
+                        if (_errorMessage != null)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.error_outline, 
                                   color: Colors.red.shade700,
-                                  fontWeight: FontWeight.w500,
+                                  size: isSmallScreen ? 20 : 24,
                                 ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    _errorMessage!,
+                                    style: TextStyle(
+                                      color: Colors.red.shade700,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: isSmallScreen ? 13 : 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Campo Email
+                        _buildTextField(
+                          controller: _emailController,
+                          hint: "Correo electrónico",
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          isSmallScreen: isSmallScreen,
+                        ),
+                        SizedBox(height: isSmallScreen ? 12 : 16),
+
+                        // Campo Contraseña
+                        _buildTextField(
+                          controller: _passwordController,
+                          hint: "Contraseña",
+                          icon: Icons.lock_outline,
+                          obscureText: _obscurePassword,
+                          isSmallScreen: isSmallScreen,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              size: isSmallScreen ? 20 : 24,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                        ),
+
+                        SizedBox(height: verticalSpacing),
+
+                        // Botón Ingresar
+                        SizedBox(
+                          width: double.infinity,
+                          height: isSmallScreen ? 45 : 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+                            onPressed: _isLoading ? null : _iniciarSesion,
+                            child: _isLoading
+                                ? SizedBox(
+                                    height: isSmallScreen ? 18 : 20,
+                                    width: isSmallScreen ? 18 : 20,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    "Ingresar",
+                                    style: TextStyle(fontSize: buttonTextSize),
+                                  ),
+                          ),
+                        ),
+
+                        SizedBox(height: isSmallScreen ? 16 : 20),
+
+                        // Divisor
+                        Row(
+                          children: [
+                            Expanded(child: Divider(color: Colors.grey.shade300)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isSmallScreen ? 12 : 16,
+                              ),
+                              child: Text(
+                                "o continúa con",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: isSmallScreen ? 13 : 14,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: Divider(color: Colors.grey.shade300)),
+                          ],
+                        ),
+
+                        SizedBox(height: isSmallScreen ? 16 : 20),
+
+                        // Botón Google
+                        SizedBox(
+                          width: double.infinity,
+                          height: isSmallScreen ? 45 : 50,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              side: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            onPressed: _isLoadingGoogle ? null : _iniciarSesionConGoogle,
+                            icon: _isLoadingGoogle
+                                ? SizedBox(
+                                    height: isSmallScreen ? 18 : 20,
+                                    width: isSmallScreen ? 18 : 20,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Image.network(
+                                    'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                                    height: isSmallScreen ? 20 : 24,
+                                    width: isSmallScreen ? 20 : 24,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(Icons.g_mobiledata, 
+                                        size: isSmallScreen ? 20 : 24,
+                                      );
+                                    },
+                                  ),
+                            label: Flexible(
+                              child: Text(
+                                _isLoadingGoogle ? "Conectando..." : "Continuar con Google",
+                                style: TextStyle(
+                                  fontSize: isSmallScreen ? 14 : 16,
+                                  color: Colors.black87,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: isSmallScreen ? 12 : 20),
+
+                        // Link Registrarse
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              "¿No tienes cuenta?",
+                              style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/register');
+                              },
+                              child: Text(
+                                "Regístrate",
+                                style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
                               ),
                             ),
                           ],
                         ),
-                      ),
-
-                    // Campo Email
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: "Correo electrónico",
-                        prefixIcon: const Icon(Icons.email_outlined),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Campo Contraseña
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        hintText: "Contraseña",
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Botón Ingresar
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        onPressed: _isLoading ? null : _iniciarSesion,
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text(
-                                "Ingresar",
-                                style: TextStyle(fontSize: 18),
-                              ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Divisor
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: Colors.grey.shade300)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            "o continúa con",
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ),
-                        Expanded(child: Divider(color: Colors.grey.shade300)),
                       ],
                     ),
-
-                    const SizedBox(height: 20),
-
-                    // Botón Google
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          side: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        onPressed: _isLoadingGoogle ? null : _iniciarSesionConGoogle,
-                        icon: _isLoadingGoogle
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Image.network(
-                                'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                                height: 24,
-                                width: 24,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.g_mobiledata, size: 24);
-                                },
-                              ),
-                        label: Text(
-                          _isLoadingGoogle ? "Conectando..." : "Continuar con Google",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Link Registrarse
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("¿No tienes cuenta?"),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/register');
-                          },
-                          child: const Text("Regístrate"),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    required bool isSmallScreen,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+        prefixIcon: Icon(icon, size: isSmallScreen ? 20 : 24),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: Colors.grey.shade100,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: isSmallScreen ? 12 : 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
         ),
       ),
     );

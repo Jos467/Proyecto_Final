@@ -9,6 +9,7 @@ import 'package:proyecto_movil_2/screens/lista_alertas_screen.dart';
 import 'package:proyecto_movil_2/screens/detalle_alerta_screen.dart';
 import 'package:proyecto_movil_2/screens/perfil_screen.dart';
 import 'package:proyecto_movil_2/screens/mapa_alertas_screen.dart';
+import 'package:proyecto_movil_2/screens/zungos_data_screen.dart'; // NUEVO
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +29,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
         useMaterial3: true,
       ),
-      initialRoute: '/', // Cambiado a splash
+      initialRoute: '/',
       routes: {
-        '/': (context) => const SplashScreen(), // Nueva ruta inicial
+        '/': (context) => const SplashScreen(),
         '/politica-inicial': (context) => const PoliticaPrivacidadScreen(esPrimeraVez: true),
         '/politica': (context) => const PoliticaPrivacidadScreen(esPrimeraVez: false),
         '/login': (context) => const LoginPage(),
@@ -38,8 +39,9 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/mis-alertas': (context) => ListaAlertasScreen(),
         '/detalle-alerta': (context) => DetalleAlertaScreen(),
-        '/perfil': (context) => PerfilScreen(),
+        '/perfil': (context) => const PerfilScreen(),
         '/mapa': (context) => const MapaAlertasScreen(),
+        '/conocenos': (context) => const ZungosDataScreen(), // NUEVO
       },
     );
   }
