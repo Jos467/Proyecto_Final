@@ -270,7 +270,7 @@ class _LoginPageState extends State<LoginPage> {
                           height: isSmallScreen ? 45 : 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
+                              backgroundColor: Color.fromARGB(255, 45, 80, 50),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),

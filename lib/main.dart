@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:proyecto_movil_2/screens/splash_screen.dart';
+import 'package:proyecto_movil_2/screens/auth_wrapper.dart';
 import 'package:proyecto_movil_2/screens/politica_privacidad_screen.dart';
 import 'package:proyecto_movil_2/screens/login_screen.dart';
 import 'package:proyecto_movil_2/screens/registro_screen.dart';
@@ -9,7 +9,7 @@ import 'package:proyecto_movil_2/screens/lista_alertas_screen.dart';
 import 'package:proyecto_movil_2/screens/detalle_alerta_screen.dart';
 import 'package:proyecto_movil_2/screens/perfil_screen.dart';
 import 'package:proyecto_movil_2/screens/mapa_alertas_screen.dart';
-import 'package:proyecto_movil_2/screens/zungos_data_screen.dart'; // NUEVO
+import 'package:proyecto_movil_2/screens/zungos_data_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,9 +29,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
         useMaterial3: true,
       ),
-      initialRoute: '/',
+      // Usar AuthWrapper como home en lugar de ruta inicial
+      home: const AuthWrapper(),
       routes: {
-        '/': (context) => const SplashScreen(),
         '/politica-inicial': (context) => const PoliticaPrivacidadScreen(esPrimeraVez: true),
         '/politica': (context) => const PoliticaPrivacidadScreen(esPrimeraVez: false),
         '/login': (context) => const LoginPage(),
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         '/detalle-alerta': (context) => DetalleAlertaScreen(),
         '/perfil': (context) => const PerfilScreen(),
         '/mapa': (context) => const MapaAlertasScreen(),
-        '/conocenos': (context) => const ZungosDataScreen(), // NUEVO
+        '/conocenos': (context) => const ZungosDataScreen(),
       },
     );
   }

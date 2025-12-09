@@ -577,43 +577,47 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 
   Future<void> _mostrarDialogoCerrarSesion(BuildContext context) async {
-    bool? confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.logout, color: Colors.red),
-            SizedBox(width: 12),
-            Text('Cerrar Sesión'),
-          ],
-        ),
-        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Cerrar Sesión'),
-          ),
+  bool? confirmar = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Row(
+        children: [
+          Icon(Icons.logout, color: Colors.red),
+          SizedBox(width: 12),
+          Text('Cerrar Sesión'),
         ],
       ),
-    );
+      content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Cerrar Sesión'),
+        ),
+      ],
+    ),
+  );
 
-    if (confirmar == true) {
-      await _authService.cerrarSesion();
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/login');
-      }
+  if (confirmar == true) {
+    await _authService.cerrarSesion();
+    if (mounted) {
+      // Navegar al login y eliminar todas las rutas anteriores
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (route) => false,
+      );
     }
   }
+}
 }

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,21 +14,61 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _verificarPolitica();
+    _verificarEstadoInicial();
   }
 
-  Future<void> _verificarPolitica() async {
-    await Future.delayed(const Duration(seconds: 2)); // Mostrar splash 2 segundos
-    
+  Future<void> _verificarEstadoInicial() async {
+    // Esperar un momento para mostrar el splash
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    // Verificar si ya aceptó la política de privacidad
     final prefs = await SharedPreferences.getInstance();
     final politicaAceptada = prefs.getBool('politica_aceptada') ?? false;
-    
-    if (mounted) {
-      if (politicaAceptada) {
-        Navigator.pushReplacementNamed(context, '/login');
-      } else {
+
+    if (!politicaAceptada) {
+      // Primera vez: mostrar política de privacidad
+      if (mounted) {
         Navigator.pushReplacementNamed(context, '/politica-inicial');
       }
+      return;
+    }
+
+    // Esperar a que Firebase Auth restaure el estado de sesión
+    // Esto es CLAVE para mantener la sesión
+    User? usuario = await _esperarUsuario();
+
+    if (!mounted) return;
+
+    if (usuario != null) {
+      // Hay sesión activa: ir directo al home
+      print('✅ Usuario encontrado: ${usuario.email}');
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      // No hay sesión: ir al login
+      print('❌ No hay sesión activa');
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
+  // Esperar a que Firebase restaure el usuario
+  Future<User?> _esperarUsuario() async {
+    // Método 1: Esperar el primer evento de authStateChanges
+    try {
+      // Esperar máximo 3 segundos para que Firebase restaure la sesión
+      User? usuario = await FirebaseAuth.instance
+          .authStateChanges()
+          .first
+          .timeout(
+            const Duration(seconds: 3),
+            onTimeout: () => null,
+          );
+      return usuario;
+    } catch (e) {
+      print('Error esperando usuario: $e');
+      // Si hay error, verificar directamente
+      return FirebaseAuth.instance.currentUser;
     }
   }
 
@@ -51,9 +93,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: Colors.white,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             const Text(
               'Gestión de',
               style: TextStyle(
@@ -69,18 +111,18 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            
+
             const SizedBox(height: 48),
-            
+
             const CircularProgressIndicator(
               color: Colors.white,
               strokeWidth: 2,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Text(
-              'Cargando...',
+              'Verificando sesión...',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.7),
                 fontSize: 14,
